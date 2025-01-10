@@ -1,0 +1,36 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "532da31c163c08e9d3b2c7162b560b22"
+application_url = "https://chess-riders-simpson-guru.trycloudflare.com"
+embedded = true
+name = "file-picker-remix"
+handle = "file-picker-remix"
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://chess-riders-simpson-guru.trycloudflare.com/auth/callback",
+  "https://chess-riders-simpson-guru.trycloudflare.com/auth/shopify/callback",
+  "https://chess-riders-simpson-guru.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
+
+[build]
+dev_store_url = "uc-swatch-preview.myshopify.com"
+automatically_update_urls_on_dev = true

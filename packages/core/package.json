@@ -1,0 +1,86 @@
+{
+  "name": "@sadsciencee/shopify-remix",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "default": "./dist/node/index.js",
+      "engines": {
+        "node": "^18.20 || ^20.10 || >=21.0.0"
+      }
+    },
+    "./cloudflare": {
+      "types": "./dist/cloudflare/index.d.ts",
+      "default": "./dist/cloudflare/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "node": [
+        "./dist/node/index.d.ts"
+      ],
+      "cloudflare": [
+        "./dist/cloudflare/index.d.ts"
+      ],
+      "react": [
+        "./dist/react/index.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "prepublishOnly": "pnpm run build",
+    "clean": "rm -rf dist",
+    "prebuild": "pnpm run clean",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest"
+  },
+  "peerDependencies": {
+    "@remix-run/cloudflare": "^2.14.0",
+    "@remix-run/node": "^2.7.1",
+    "@remix-run/react": "^2.7.1",
+    "@shopify/app-bridge-react": "^4.1.6",
+    "@shopify/polaris": "^12.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@remix-run/node": {
+      "optional": true
+    },
+    "@remix-run/cloudflare": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@remix-run/cloudflare": "^2.14.0",
+    "@remix-run/dev": "^2.15.2",
+    "@remix-run/node": "^2.7.1",
+    "@remix-run/react": "^2.7.1",
+    "@shopify/app-bridge-react": "^4.1.6",
+    "@shopify/polaris": "^12.0.0",
+    "@types/node": "^22.2.0",
+    "@types/react": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "react": "18.3.1",
+    "react-dom": "^18.2.0",
+    "terser": "^5.37.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^4.4.0",
+    "vitest": "^1.0.0"
+  },
+  "packageManager": "pnpm@8.0.0"
+}

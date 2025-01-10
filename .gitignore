@@ -1,0 +1,57 @@
+# .gitignore
+node_modules
+dist
+.npmrc
+.idea/*
+.idea
+.idea/
+# IDE
+.vscode
+*.iml
+.DS_Store
+
+# Build output
+build
+
+# Dependencies
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Development databases
+*.sqlite
+*.sqlite-journal
+
+# Mac OS System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Mac IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Mac Directory Metadata
+.AppleDouble
+.LSOverride
+
+# Mac External Disks
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
