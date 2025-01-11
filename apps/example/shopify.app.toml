@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "532da31c163c08e9d3b2c7162b560b22"
-application_url = "https://chess-riders-simpson-guru.trycloudflare.com"
+application_url = "https://marilyn-write-conversation-prove.trycloudflare.com"
 embedded = true
 name = "file-picker-remix"
 handle = "file-picker-remix"
@@ -23,9 +23,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://chess-riders-simpson-guru.trycloudflare.com/auth/callback",
-  "https://chess-riders-simpson-guru.trycloudflare.com/auth/shopify/callback",
-  "https://chess-riders-simpson-guru.trycloudflare.com/api/auth/callback"
+  "https://marilyn-write-conversation-prove.trycloudflare.com/auth/callback",
+  "https://marilyn-write-conversation-prove.trycloudflare.com/auth/shopify/callback",
+  "https://marilyn-write-conversation-prove.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

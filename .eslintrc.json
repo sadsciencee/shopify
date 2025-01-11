@@ -18,6 +18,7 @@
   },
   "plugins": [
     "@typescript-eslint",
+    "neverthrow",
     "react",
     "react-hooks"
   ],
@@ -36,6 +37,7 @@
       { "prefer": "type-imports" }
     ],
     "@typescript-eslint/no-explicit-any": "error",
+    "neverthrow/must-use-result": "error",
     "no-console": ["warn", {
       "allow": ["warn", "error"]
     }],

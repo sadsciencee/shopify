@@ -15,7 +15,7 @@ import {
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import {FilePickerComponent} from "@sadsciencee/shopify-remix/react";
+import { ModalV4, useModal } from '@sadsciencee/shopify-remix/react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
@@ -111,6 +111,13 @@ export default function Index() {
   }, [productId, shopify]);
   const generateProduct = () => fetcher.submit({}, { method: "POST" });
 
+  const modal = useModal({
+    id: 'hehehoho',
+    route: 'hello',
+  })
+
+  const opener = <Button onClick={modal.open}>Open Modal</Button>
+
   return (
     <Page>
       <TitleBar title="Remix app template">
@@ -119,12 +126,27 @@ export default function Index() {
         </button>
       </TitleBar>
       <BlockStack gap="500">
-        <FilePickerComponent />
+        <Box>
+          {opener}
+          <ModalV4 id={modal.id} variant='max'>
+            <TitleBar title="Products">
+              <button
+                variant="primary"
+                tone="critical"
+                onClick={() => console.log('Deleting')}
+              >
+                Delete
+              </button>
+              <button onClick={() => console.log('Cancelling')}>Cancel</button>
+            </TitleBar>
+
+          </ModalV4>
+        </Box>
         <Layout>
           <Layout.Section>
             <Card>
               <BlockStack gap="500">
-                <BlockStack gap="200">
+              <BlockStack gap="200">
                   <Text as="h2" variant="headingMd">
                     Congrats on creating a new Shopify app 🎉
                   </Text>

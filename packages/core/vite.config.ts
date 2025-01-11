@@ -7,6 +7,11 @@ export default defineConfig({
         jsx: 'automatic',
         jsxImportSource: 'react',
     },
+    resolve: {
+        alias: {
+            '@admin': resolve(__dirname, './src/admin.types.ts')
+        }
+    },
     plugins: [
         dts({
             include: ['src'],

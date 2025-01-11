@@ -1,11 +1,11 @@
 # @sadsciencee/shopify-remix
-A collection of React x Remix x Shopify patterns that I'm 
+A collection of full stack patterns that I'm 
 tired of copy/pasting between apps for my clients.
 
-Initially, the functionality enabled by this library requires a 
+The functionality enabled by this library assumes a 
 Shopify app with Remix, Vite, React and Polaris.
 
-Your app should have the following features enabled to enable client side 
+The following are required for client side 
 fetching in the File Picker and Autocomplete Search
 
 - [direct access API](https://shopify.dev/docs/api/app-bridge-library)

@@ -11,7 +11,10 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@admin": ["src/admin.types.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

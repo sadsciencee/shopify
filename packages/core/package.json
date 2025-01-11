@@ -42,6 +42,9 @@
     "lint": "eslint .",
     "test": "vitest"
   },
+  "dependencies": {
+    "neverthrow": "^6.2.2"
+  },
   "peerDependencies": {
     "@remix-run/cloudflare": "^2.14.0",
     "@remix-run/node": "^2.7.1",
@@ -60,6 +63,8 @@
     }
   },
   "devDependencies": {
+    "type-fest": "4.27.1",
+    "eslint-plugin-neverthrow": "^1.1.4",
     "@remix-run/cloudflare": "^2.14.0",
     "@remix-run/dev": "^2.15.2",
     "@remix-run/node": "^2.7.1",
