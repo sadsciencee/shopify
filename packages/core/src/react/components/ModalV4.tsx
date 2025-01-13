@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { Modal as ShopifyModal } from '@shopify/app-bridge-react';
+import { Modal as ShopifyModal, TitleBar } from '@shopify/app-bridge-react';
 import { type ModalV4Props, useModalPortal } from '../hooks/public/useModalPortal';
 import { MaxModalTitleBar } from './MaxModalTitleBar';
 
@@ -9,7 +9,7 @@ import { MaxModalTitleBar } from './MaxModalTitleBar';
  */
 export const ModalV4 = forwardRef<UIModalElement, ModalV4Props>(
 	({ opener: Opener, ...hookArgs }, ref) => {
-		const { id, sendMessage, onShow, openModal, variant, titleBar, onHide } =
+		const { id, sendMessage, onShow, openModal, variant, titleBar, onHide, modalRoute } =
 			useModalPortal(hookArgs);
 		return (
 			<>
@@ -21,9 +21,11 @@ export const ModalV4 = forwardRef<UIModalElement, ModalV4Props>(
 						}
 						openModal();
 					}}
-				/>
-				<ShopifyModal ref={ref} id={id} variant={variant} onShow={onShow} onHide={onHide}>
-					<MaxModalTitleBar {...titleBar} sendMessage={sendMessage} />
+				>Open me</Opener>
+				<ShopifyModal src={modalRoute} ref={ref} id={id} variant={variant} onShow={onShow} onHide={onHide}>
+					<TitleBar title={titleBar.title}>
+						<MaxModalTitleBar {...titleBar} sendMessage={sendMessage} />
+					</TitleBar>
 				</ShopifyModal>
 			</>
 		);

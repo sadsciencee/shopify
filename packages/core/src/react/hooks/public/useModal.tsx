@@ -1,10 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { type PayloadKey, type PayloadData, type ModalMessage, MessageCallback } from '../../../shared/modal';
+import { type ModalMessage } from '../../../shared/modal';
 import { useModalId } from '../private/useModalId';
-
-type HandlersMap = {
-	[K in PayloadKey]?: (data: PayloadData<K>) => void;
-};
 
 /**
  * Configuration for setting up a message channel with the host
@@ -38,67 +34,58 @@ export interface UseModalArgs {
 export function useModal(args: UseModalArgs) {
 	const { id, route, onPrimaryAction, onSecondaryAction } = args;
 	const modalId = useModalId({ id, route });
-	const portRef = useRef<MessagePort | null>(null);
-
-	useEffect(() => {
-		function handlePortInit(
-			event: MessageEvent<
-				{ type: '__MODAL_CHANNEL_INIT__'; modalId: string } | Record<string, never>
-			>,
-		) {
-			const { data, ports } = event;
-			if (!data || data.type !== '__MODAL_CHANNEL_INIT__') return;
-			if (data.modalId !== modalId) return;
-			const [port] = ports;
-			if (!port) return;
-
-			// handles re-init case
-			if (portRef.current) {
-				portRef.current.onmessage = null;
-				portRef.current.close();
-			}
-
-			portRef.current = port;
-			port.start();
-
-			port.onmessage = (evt: MessageEvent<ModalMessage>) => {
-				const msg = evt.data;
-				if (msg.modalId !== modalId) return;
-				if (msg.type !== 'titleBarAction') return;
-				switch (msg.data.action) {
-					case 'secondary':
-						onSecondaryAction?.();
-						break;
-					case 'primary':
-						onPrimaryAction?.();
-						break;
-				}
-			};
-		}
-
-		// Listen for the parent's __MODAL_CHANNEL_INIT__ event.
-		// If the parent remounts, we'll get a new event & new port.
-		window.addEventListener('message', handlePortInit);
-
-		return () => {
-			window.removeEventListener('message', handlePortInit);
-			if (portRef.current) {
-				portRef.current.onmessage = null;
-				portRef.current.close();
-				portRef.current = null;
-			}
-		};
-	}, [modalId, onPrimaryAction, onSecondaryAction]);
 
 	/**
-	 * Sends a typed message from child to parent.
+	 * Initialize `MessageChannel` with parent frame on modal mount.
 	 */
-	const sendMessage: MessageCallback = useCallback(
-		(type, data) => {
-			const port = portRef.current;
-			if (!port) return;
-			const message: ModalMessage = { modalId, type, data };
-			port.postMessage(message);
+	const channelRef = useRef<MessageChannel | null>(null);
+	useEffect(() => {
+		channelRef.current = new MessageChannel();
+
+		const { port1, port2 } = channelRef.current;
+
+		/**
+		 * listen to messages on `port1`
+		 */
+		port1.onmessage = (evt: MessageEvent<ModalMessage>) => {
+			const msg = evt.data;
+			// if (msg.modalId !== modalId) return;
+			if (msg.type !== 'titleBarAction') return;
+			switch (msg.data.action) {
+				case 'secondary':
+					onSecondaryAction?.();
+					break;
+				case 'primary':
+					onPrimaryAction?.();
+					break;
+			}
+		};
+
+		/**
+		 * transfer `port2` to the parent.
+		 */
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+		window?.opener?.postMessage({ type: '__MODAL_CHANNEL_INIT__', modalId }, location.origin, [
+			channelRef.current.port2,
+		]);
+
+		return () => {
+			port1.onmessage = null;
+			port1.close();
+			port2.close();
+			channelRef.current = null;
+		};
+	}, [modalId, onSecondaryAction, onPrimaryAction]);
+
+	const sendMessage = useCallback(
+		(payload: ModalMessage) => {
+			const channel = channelRef.current;
+			if (!channel) {
+				console.warn('Attempted to send message to modal without an active channel.');
+				return;
+			}
+			const message: ModalMessage & { modalId: string } = { modalId, ...payload };
+			channel.port1.postMessage(message);
 		},
 		[modalId],
 	);

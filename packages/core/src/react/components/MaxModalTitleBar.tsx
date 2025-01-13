@@ -1,18 +1,16 @@
-import { TitleBar } from '@shopify/app-bridge-react';
-import { type MaxModalTitleBarProps, type MessageCallback } from '../../shared/modal';
+import { type MaxModalTitleBarProps, type SendMessageCallback } from '../../shared/modal';
 import { useCallback } from 'react';
 
 export const MaxModalTitleBar = ({
-	title,
 	primaryButton,
 	secondaryButton,
 	sendMessage,
-}: MaxModalTitleBarProps & { sendMessage: MessageCallback }) => {
+}: MaxModalTitleBarProps & { sendMessage: SendMessageCallback }) => {
 	return (
-		<TitleBar title={title}>
+		<>
 			<Button button={secondaryButton} variant={'secondary'} sendMessage={sendMessage} />
 			<Button button={primaryButton} variant={'primary'} sendMessage={sendMessage} />
-		</TitleBar>
+		</>
 	);
 };
 
@@ -22,11 +20,15 @@ const Button = ({
 	variant,
 }: {
 	button?: MaxModalTitleBarProps['primaryButton'];
-	sendMessage: MessageCallback;
+	sendMessage: SendMessageCallback;
 	variant: 'primary' | 'secondary';
 }) => {
 	const onClickCB = useCallback(() => {
-		sendMessage('titleBarAction', { action: variant });
+		console.log('im so clicked')
+		sendMessage({
+			type: 'titleBarAction',
+			data: { action: variant },
+		});
 	}, [sendMessage, variant]);
 	if (!button) return <></>;
 	return (

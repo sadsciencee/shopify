@@ -29,17 +29,29 @@ declare global {
 export type PayloadKey = keyof PayloadRegistry;
 export type PayloadData<K extends PayloadKey> = PayloadRegistry[K];
 
-
-
 export type ModalMessage = {
 	[K in keyof PayloadRegistry]: {
 		type: K;
-		modalId: string;
 		data: PayloadData<K>;
 	};
 }[keyof PayloadRegistry];
 
-export type MessageCallback = <K extends PayloadKey>(type: K, data: PayloadData<K>) => void;
+export type ModalMessageWithId = { payload: ModalMessage; modalId: string }
+
+// export type SendMessageCallback = <K extends PayloadKey>(type: K, data: PayloadData<K>) => void;
+export type SendMessageCallback =  (payload: ModalMessage) => void
+/**
+ * Type mapping of event keys to callback functions, strongly typed from global `PayloadRegistry`.
+ */
+export type ReceiveMessageCallback = {
+	[K in PayloadKey]: <T extends K>(
+		data: PayloadRegistry[T] extends PayloadRegistry[K] ? PayloadRegistry[T] : never,
+	) => void;
+}[PayloadKey];
+
+export type HandlersMap = {
+	[K in PayloadKey]?: (data: PayloadData<K>) => void;
+};
 
 export type BaseTitleBarProps = {
 	title: string;
