@@ -1,61 +1,107 @@
-import React, { useCallback } from 'react';
-import type { Message, PayloadData, PayloadKey } from '../../../shared/modal';
-import { useMessageHandler } from '../private/useMessageHandler';
+import { useEffect, useRef, useCallback } from 'react';
+import { type PayloadKey, type PayloadData, type ModalMessage, MessageCallback } from '../../../shared/modal';
 import { useModalId } from '../private/useModalId';
-import { useAppBridge } from '@shopify/app-bridge-react';
-import { useNavigate } from '@remix-run/react';
 
+type HandlersMap = {
+	[K in PayloadKey]?: (data: PayloadData<K>) => void;
+};
 
-export type UseModalArgs = {
-	/** Modal identifier
-	 * @default 'Auto' for new/unrelated resources
+/**
+ * Configuration for setting up a message channel with the host
+ */
+export interface UseModalArgs {
+	/**
+	 * A unique ID segment used to build `modalId`. If the route
+	 * is modal.products.$id, this would be passed from the $id param.
 	 */
 	id: string;
-	/** Route segment
-	 * @example 'products' for modal.products.$id
+	/**
+	 * A route segment used to build `modalId`. If the route is
+	 * modal.products.$id, this would be 'products'.
 	 */
 	route: string;
-	/** Callbacks
-	 * @example { close: () => void }
+	/**
+	 * Callback that fires when the primary action is triggered
+	 * by the title bar.
 	 */
-	handlers?: {
-		[K in PayloadKey]?: (data: PayloadData<K>) => void;
-	};
+	onPrimaryAction?: () => void;
+	/**
+	 * Callback that fires when the secondary action is triggered
+	 * by the title bar.
+	 */
+	onSecondaryAction?: () => void;
 }
 
-
+/**
+ * Used this hook inside your modal route to handle messaging between host and modal components
+ */
 export function useModal(args: UseModalArgs) {
-	const shopify = useAppBridge();
-	const navigate = useNavigate();
-	const modalId = useModalId(args);
-	useMessageHandler(modalId, args.handlers);
-	const open = useCallback(() => {
-		void shopify.modal.show(modalId);
-	}, [modalId]);
+	const { id, route, onPrimaryAction, onSecondaryAction } = args;
+	const modalId = useModalId({ id, route });
+	const portRef = useRef<MessagePort | null>(null);
 
-	const handleNavigation = React.useCallback(
-		(to: string) => {
-			history.pushState({}, '', to);
-			navigate(to);
+	useEffect(() => {
+		function handlePortInit(
+			event: MessageEvent<
+				{ type: '__MODAL_CHANNEL_INIT__'; modalId: string } | Record<string, never>
+			>,
+		) {
+			const { data, ports } = event;
+			if (!data || data.type !== '__MODAL_CHANNEL_INIT__') return;
+			if (data.modalId !== modalId) return;
+			const [port] = ports;
+			if (!port) return;
+
+			// handles re-init case
+			if (portRef.current) {
+				portRef.current.onmessage = null;
+				portRef.current.close();
+			}
+
+			portRef.current = port;
+			port.start();
+
+			port.onmessage = (evt: MessageEvent<ModalMessage>) => {
+				const msg = evt.data;
+				if (msg.modalId !== modalId) return;
+				if (msg.type !== 'titleBarAction') return;
+				switch (msg.data.action) {
+					case 'secondary':
+						onSecondaryAction?.();
+						break;
+					case 'primary':
+						onPrimaryAction?.();
+						break;
+				}
+			};
+		}
+
+		// Listen for the parent's __MODAL_CHANNEL_INIT__ event.
+		// If the parent remounts, we'll get a new event & new port.
+		window.addEventListener('message', handlePortInit);
+
+		return () => {
+			window.removeEventListener('message', handlePortInit);
+			if (portRef.current) {
+				portRef.current.onmessage = null;
+				portRef.current.close();
+				portRef.current = null;
+			}
+		};
+	}, [modalId, onPrimaryAction, onSecondaryAction]);
+
+	/**
+	 * Sends a typed message from child to parent.
+	 */
+	const sendMessage: MessageCallback = useCallback(
+		(type, data) => {
+			const port = portRef.current;
+			if (!port) return;
+			const message: ModalMessage = { modalId, type, data };
+			port.postMessage(message);
 		},
-		[navigate]
+		[modalId],
 	);
 
-	const sendMessage = useCallback(<K extends PayloadKey>(
-		type: K,
-		data: PayloadData<K>
-	): void => {
-		const message: Message<K> = {
-			type,
-			modalId,
-			data
-		};
-		window.opener?.postMessage(message, location.origin);
-	}, [modalId]);
-
-	return {
-		id: modalId,
-		sendMessage,
-		open,
-	};
+	return { modalId, sendMessage };
 }

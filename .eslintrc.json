@@ -41,8 +41,17 @@
     "no-console": ["warn", {
       "allow": ["warn", "error"]
     }],
+    "no-mixed-spaces-and-tabs": "off",
     "react/react-in-jsx-scope": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.tsx", "*.jsx"],
+      "rules": {
+        "@typescript-eslint/unbound-method": "off"
+      }
+    }
+  ]
 }

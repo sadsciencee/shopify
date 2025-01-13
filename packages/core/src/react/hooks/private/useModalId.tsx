@@ -1,5 +1,5 @@
 import { useId, useMemo } from 'react';
-import { type UseModalParentArgs } from '../public/useModalParent';
+import { type UseModalParentArgs } from '../public/useModalPortal';
 import { type UseModalArgs } from '../public/useModal';
 
 const AUTO_MODAL_ARG = 'auto';
