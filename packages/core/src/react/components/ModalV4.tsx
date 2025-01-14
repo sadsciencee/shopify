@@ -7,7 +7,7 @@ import { MaxModalTitleBar } from './MaxModalTitleBar';
  * A managed implementation of the Shopify App Bridge `ui-modal` element, with
  * support for passing messages between the parent page and the modal.
  */
-export const ModalV4 = forwardRef<UIModalElement, ModalV4Props>(
+export const ModalV4 = forwardRef<UIModalElement, ModalV4Props<T>>(
 	({ opener: Opener, ...hookArgs }, ref) => {
 		const { id, sendMessage, onShow, openModal, variant, titleBar, onHide, modalRoute } =
 			useModalPortal(hookArgs);

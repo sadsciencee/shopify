@@ -1,5 +1,5 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { type ModalMessage } from '../../../shared/modal';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { type ModalMessage, type SharedState, type TitleBarState } from '../../../shared/modal';
 import { useModalId } from '../private/useModalId';
 
 /**
@@ -31,7 +31,10 @@ export interface UseModalArgs {
 /**
  * Used this hook inside your modal route to handle messaging between host and modal components
  */
-export function useModal(args: UseModalArgs) {
+export function useModal<T extends SharedState = SharedState>(args: UseModalArgs) {
+	const [sharedState, setSharedState] = useState<T | null>(null);
+	const [titleBarState, setTitleBarState] = useState<TitleBarState | null>(null);
+	const [loaded, setLoaded] = useState(false);
 	const { id, route, onPrimaryAction, onSecondaryAction } = args;
 	const modalId = useModalId({ id, route });
 
@@ -50,7 +53,13 @@ export function useModal(args: UseModalArgs) {
 		port1.onmessage = (evt: MessageEvent<ModalMessage>) => {
 			const msg = evt.data;
 			// if (msg.modalId !== modalId) return;
-			if (msg.type !== 'titleBarAction') return;
+			if (msg.type !== 'titleBarAction' && msg.type !== 'sendParentState') return;
+			if (msg.type === 'sendParentState') {
+				setSharedState(msg.data.sharedState as T);
+				setTitleBarState(msg.data.titleBarState);
+				setLoaded(true)
+				return;
+			}
 			switch (msg.data.action) {
 				case 'secondary':
 					onSecondaryAction?.();
@@ -90,5 +99,5 @@ export function useModal(args: UseModalArgs) {
 		[modalId],
 	);
 
-	return { modalId, sendMessage };
+	return { modalId, sendMessage, sharedState, titleBarState, setTitleBarState, loaded };
 }

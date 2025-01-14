@@ -125,6 +125,9 @@ export default function Index() {
 						route={'hello'}
 						variant="max"
 						opener={Button}
+            sharedState={{
+              howdy: "partner"
+            }}
 					/>
 				</Box>
 				<Layout>

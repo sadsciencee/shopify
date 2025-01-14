@@ -5,39 +5,49 @@ import {
 	type MaxModalTitleBarProps,
 	type ReceiveMessageCallback,
 	type HandlersMap,
-	type ModalMessageWithId,
+	type SharedState,
 } from '../../../shared/modal';
 import { useModalId } from '../private/useModalId';
 import { useAppBridge } from '@shopify/app-bridge-react';
 // import { useNavigate } from '@remix-run/react';
 
-export type UseModalPortalArgs = BaseModalProps & (StandardModalProps | MaxModalProps);
-export type ModalV4Props = UseModalPortalArgs & {
+export type UseModalPortalArgs<T extends SharedState = SharedState> = BaseModalProps<T> &
+	(StandardModalProps | MaxModalProps);
+export type ModalV4Props<T extends SharedState = SharedState> = UseModalPortalArgs<T> & {
 	opener: ComponentType<{ onClick: (e?: React.MouseEvent) => void }>;
 };
 
-type BaseModalProps = {
-	/**
-	 * A unique ID segment used to build `modalId`, for instance 'product-123'.
-	 */
-	id: string;
-	/**
-	 * A route segment used to build `modalId`, for instance 'products'.
-	 */
-	route: string;
+type BaseModalProps<T extends SharedState = SharedState> = {
 	/**
 	 * Map of event handlers keyed by event type. For typescript support, add your
 	 * custom event types to the global `PayloadRegistry` interface.
 	 */
 	handlers?: ReceiveMessageCallback;
 	/**
-	 * Called when the modal is loaded, after communication is established with the modal
+	 * A unique ID segment used to build `modalId`, for instance 'product-123'.
 	 */
-	onShow?(): void;
+	id: string;
 	/**
 	 * Called when the modal is closed, after all built-in callbacks
 	 */
 	onHide?(): void;
+	/**
+	 * Called when the modal is loaded, after communication is established with the modal
+	 */
+	onShow?(): void;
+	/**
+	 * A route segment used to build `modalId`, for instance 'products'.
+	 */
+	route: string;
+	/**
+	 * Optionally pass state to share with the modal. Due to how Shopify App Bridge
+	 * handles modals, this state will be requested asynchronously by the modal
+	 * once it has loaded and returned as `parentState` from `useModal`.
+	 *
+	 * * The `loaded` state returned from `useModal` will be `false` until the modal
+	 *  receives the shared state from the parent.
+	 */
+	sharedState?: T;
 };
 
 type StandardModalProps = {
@@ -71,9 +81,9 @@ type MaxModalProps = {
  * Parent-side hook to manage a Shopify iframe modal with MessageChannel.
  * Re-initializes on mount, so the child can re-handshake after route re-renders.
  */
-export function useModalPortal(args: UseModalPortalArgs) {
-	const { id, route, handlers, variant, onShow, onHide, titleBar } = args;
-	const [titleBarState, setTitleBarState] = useState(titleBar);
+export function useModalPortal<T extends SharedState = SharedState>(args: UseModalPortalArgs<T>) {
+	const { id, route, handlers, variant, onShow, onHide, titleBar, sharedState } = args;
+	const [titleBarState, setTitleBarState] = useState({ ...titleBar, variant });
 	const modalId = useModalId({ id, route });
 	const modalRoute = useMemo(() => modalId.replaceAll('.', '/'), [id, route]);
 	const shopify = useAppBridge();
@@ -96,6 +106,19 @@ export function useModalPortal(args: UseModalPortalArgs) {
 		[navigate],
 	);*/
 
+	/**
+	 * Sends a typed message from parent to child.
+	 */
+	const sendMessage = useCallback(
+		(payload: ModalMessage) => {
+			const port = portRef.current;
+			if (!port) return;
+			const message: ModalMessage & { modalId: string } = { modalId, ...payload };
+			port.postMessage(message);
+		},
+		[modalId],
+	);
+
 	const defaultHandlers = useMemo<HandlersMap>(
 		() => ({
 			close: ({ error, message }) => {
@@ -112,8 +135,17 @@ export function useModalPortal(args: UseModalPortalArgs) {
 				}
 				setTitleBarState(payload);
 			},
+			requestState: () => {
+				sendMessage({
+					type: 'sendParentState',
+					data: {
+						sharedState: sharedState !== undefined ? sharedState : {},
+						titleBarState: titleBarState,
+					},
+				});
+			},
 		}),
-		[close, variant, setTitleBarState],
+		[close, variant, setTitleBarState, titleBarState, sharedState, sendMessage],
 	);
 
 	const allHandlers = useMemo(
@@ -142,13 +174,11 @@ export function useModalPortal(args: UseModalPortalArgs) {
 			portRef.current = port;
 			port.start();
 
-			port.onmessage = (evt: MessageEvent<ModalMessageWithId>) => {
-				console.log(evt);
+			port.onmessage = (evt: MessageEvent<ModalMessage>) => {
 				const msg = evt.data;
-				if (msg.modalId !== modalId) return;
-				const cb = allHandlers[msg.payload.type];
+				const cb = allHandlers[msg.type];
 				if (!cb) {
-					console.warn('Unhandled message type:', msg.payload.type, ' in modal:', modalId);
+					console.warn('Unhandled message type:', msg.type, ' in modal:', modalId);
 					console.log(
 						'if you see this warning it means you are passing a message from your ' +
 							"modal but you don't have a handler for it in your parent component",
@@ -156,13 +186,23 @@ export function useModalPortal(args: UseModalPortalArgs) {
 					return;
 				}
 				// @ts-expect-error come back to this, its fine but would prefer nicer type inference todo
-				cb(msg.payload.data);
+				cb(msg.data);
 			};
+
+			// send initial state to port 1 (child)
+			sendMessage({
+				type: 'sendParentState',
+				data: {
+					sharedState: sharedState !== undefined ? sharedState : {},
+					titleBarState: titleBarState,
+				},
+			});
 		}
 
 		// Listen for the child's __MODAL_CHANNEL_INIT__ event.
 		window.addEventListener('message', handlePortInit);
 
+		// teardown
 		return () => {
 			window.removeEventListener('message', handlePortInit);
 			if (portRef.current) {
@@ -172,19 +212,6 @@ export function useModalPortal(args: UseModalPortalArgs) {
 			}
 		};
 	}, [modalId, allHandlers]);
-
-	/**
-	 * Sends a typed message from parent to child.
-	 */
-	const sendMessage = useCallback(
-		(payload: ModalMessage) => {
-			const port = portRef.current;
-			if (!port) return;
-			const message: ModalMessage & { modalId: string } = { modalId, ...payload };
-			port.postMessage(message);
-		},
-		[modalId],
-	);
 
 	const onShowCB = useCallback(() => {
 		if (onShow) {

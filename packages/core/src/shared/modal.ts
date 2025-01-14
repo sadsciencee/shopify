@@ -14,15 +14,24 @@ export interface PayloadRegistry {
 }
 */
 
+export type SharedState<T extends Record<string, never> = Record<string, never>> = T;
+
+export type TitleBarState =
+	| ({ variant: 'max' } & MaxModalTitleBarProps)
+	| ({ variant: 'small' | 'base' | 'large' } & BaseTitleBarProps);
+
 declare global {
 	interface PayloadRegistry {
 		close: { error?: false; message?: string } | { error: true; message: string };
 		toast: { error?: boolean; message: string };
+		requestState: Record<string, never>;
+		sendParentState: {
+			sharedState: SharedState;
+			titleBarState: TitleBarState;
+		};
 		reloadParent: { closeAfterReload: boolean };
 		titleBarAction: { action: 'primary' | 'secondary' };
-		titleBarState:
-			| ({ variant: 'max' } & MaxModalTitleBarProps)
-			| ({ variant: 'small' | 'base' | 'large' } & BaseTitleBarProps);
+		titleBarState: TitleBarState;
 	}
 }
 
@@ -36,10 +45,10 @@ export type ModalMessage = {
 	};
 }[keyof PayloadRegistry];
 
-export type ModalMessageWithId = { payload: ModalMessage; modalId: string }
+export type ModalMessageWithId = { payload: ModalMessage; modalId: string };
 
 // export type SendMessageCallback = <K extends PayloadKey>(type: K, data: PayloadData<K>) => void;
-export type SendMessageCallback =  (payload: ModalMessage) => void
+export type SendMessageCallback = (payload: ModalMessage) => void;
 /**
  * Type mapping of event keys to callback functions, strongly typed from global `PayloadRegistry`.
  */
