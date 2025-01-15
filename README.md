@@ -190,32 +190,6 @@ export default function YourModal() {
 }
 ````
 
-Then add 
-
-The main catch here is that your modal itself is going to 
-be a separate route in your application. There are a few benefits here, since
-if you are using Remix you can pass extra information into your modal without hoaving to 
-
-##### Modal Opener
-```typescript jsx
-import { ModalV4 } from '@sadsciencee/shopify/react';
-<ModalV4
-	titleBar={{
-		title: 'Products',
-		primaryButton: {
-			label: 'Delete',
-			disabled: false,
-		},
-	}}
-	id={'uniqueId'}
-	route={'products'}
-	variant="max" // 'small' | 'base' | 'large' | 'max'
-	opener={({ onClick }) => <Button onClick={onClick}>Open Modal</Button>}
-/>
-```
-
-##### Inside Modal Route
-
 #### Communicating With Your Modal
 
 ```typescript jsx
