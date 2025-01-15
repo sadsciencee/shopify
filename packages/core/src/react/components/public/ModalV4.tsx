@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { Modal as ShopifyModal, TitleBar } from '@shopify/app-bridge-react';
-import { type ModalV4Props, useModal } from '../hooks/public/useModal';
-import { MaxModalTitleBar } from './MaxModalTitleBar';
+import { type ModalV4Props, useModal } from '../../hooks/public/useModal';
+import { MaxModalTitleBar } from '../private/MaxModalTitleBar';
 
 /**
  * A managed implementation of the Shopify App Bridge `ui-modal` element, with

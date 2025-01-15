@@ -9,7 +9,7 @@ In packages/core
 `pnpm link --global`
 
 In apps/example
-`pnpm link --global @sadsciencee/shopify-remix`
+`pnpm link --global @sadsciencee/shopify`
 
 ## Shopify Example App
 

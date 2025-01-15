@@ -1,5 +1,5 @@
 {
-  "name": "@sadsciencee/shopify-remix-workspace",
+  "name": "@sadsciencee/shopify-workspace",
   "private": true,
   "scripts": {
     "build": "pnpm -r build",

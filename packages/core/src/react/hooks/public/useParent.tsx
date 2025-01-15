@@ -111,12 +111,46 @@ export function useParent<T extends SharedState = SharedState>(args: UseParentAr
 		[modalId],
 	);
 
+	const updateParentTitleBarState = useCallback(
+		(data: PayloadRegistry['titleBarState']) => {
+			const channel = channelRef.current;
+			if (!channel) {
+				console.warn('Attempted to send message to modal without an active channel.');
+				return;
+			}
+			const variant = titleBarState?.variant ? titleBarState.variant : 'base'
+			const message: ModalMessage = { type: 'titleBarState', data: { ...data, variant } };
+			setTitleBarState({ ...data, variant });
+			channel.port1.postMessage(message);
+		},
+		[titleBarState?.variant],
+	);
+
+
 	return {
-		modalId,
+		/**
+		 * Send a message to the parent frame.
+		 * @example sendMessage({ userEmail: 'david@ucoastweb.com' });
+		 */
 		sendMessage,
+		/**
+		 * The initial state of the parent frame, at the time the modal was loaded.
+		 */
 		parentState: sharedState,
+		/**
+		 * The initial state of the title bar in the parent frame, at the time the modal was loaded.
+		 */
 		titleBarState,
-		setTitleBarState,
+		/**
+		 * Modify the title bar state - use this to change 'disabled' status or hide/remove buttons
+		 * This will completely override the title bar state, so make sure to pass in the existing state along with your changes.
+		 * @example setTitleBarState({ ...titleBarState, primaryButton: { disabled: false, label: titleBarState.primaryButton.label } });
+		 */
+		setTitleBarState: updateParentTitleBarState,
+		/**
+		 * Whether the parent frame has finished loading the initial state. You may or may not
+		 * care about this.
+		 */
 		loaded,
 	};
 }

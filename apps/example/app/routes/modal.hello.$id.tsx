@@ -1,14 +1,22 @@
 import { BlockStack, Box, Card, Layout, Link, List, Page, Text } from '@shopify/polaris';
 import { TitleBar } from '@shopify/app-bridge-react';
-import { useParent } from '@sadsciencee/shopify-remix/react';
+import { useParent } from '@sadsciencee/shopify/react';
 import { useCallback } from 'react';
+import type { LoaderFunctionArgs } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const id = params.id ?? 'auto'
+  return { id };
+};
 
 export default function AdditionalPage() {
+  const loaderData = useLoaderData<typeof loader>();
 	const clickCb = useCallback(() => {
 		console.log('dont mind if i click');
 	}, []);
 	useParent({
-		id: 'hehehoho',
+		id: loaderData.id,
 		route: 'hello',
 		onPrimaryAction: clickCb,
 	});

@@ -15,7 +15,7 @@ import {
 } from '@shopify/polaris';
 import { TitleBar, useAppBridge } from '@shopify/app-bridge-react';
 import { authenticate } from '../shopify.server';
-import { ModalV4 } from '@sadsciencee/shopify-remix/react';
+import { ModalV4 } from '@sadsciencee/shopify/react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	await authenticate.admin(request);
