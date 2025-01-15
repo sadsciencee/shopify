@@ -5,14 +5,21 @@ import {
 	type MaxModalTitleBarProps,
 	type HandlersMap,
 	type SharedState,
-	type UserMessageHandler,
+	type ModalMessageHandler,
 } from '../../../shared/modal';
 import { useModalId } from '../private/useModalId';
 import { useAppBridge } from '@shopify/app-bridge-react';
 
-export type UseModalPortalArgs<T extends SharedState = SharedState> = BaseModalProps<T> &
-	(StandardModalProps | MaxModalProps);
-export type ModalV4Props<T extends SharedState = SharedState> = UseModalPortalArgs<T> & {
+export type UseModalPortalArgs<
+	T extends SharedState = SharedState,
+	U extends SharedState = SharedState,
+> = BaseModalProps<T, U> & (StandardModalProps | MaxModalProps);
+type InferMessageType<T> = T extends ModalMessageHandler<infer U> ? U : SharedState;
+
+export type ModalV4Props<
+	T extends SharedState = SharedState,
+	OnMessage = ModalMessageHandler<never>,
+> = {
 	/**
 	 * Render function for modal trigger element.
 	 *
@@ -22,9 +29,10 @@ export type ModalV4Props<T extends SharedState = SharedState> = UseModalPortalAr
 	 * )}
 	 */
 	opener: (props: { onClick: (e?: React.MouseEvent) => void }) => ReactElement;
-};
+	onMessage?: OnMessage;
+} & Omit<UseModalPortalArgs<T, InferMessageType<OnMessage>>, 'onMessage'>;
 
-type BaseModalProps<T extends SharedState = SharedState> = {
+type BaseModalProps<T extends SharedState = SharedState, U extends SharedState = SharedState> = {
 	/**
 	 * A unique ID segment used to build `modalId`, for instance 'product-123'.
 	 */
@@ -42,7 +50,7 @@ type BaseModalProps<T extends SharedState = SharedState> = {
 	 *   close();
 	 * }}
 	 */
-	onMessage?: UserMessageHandler;
+	onMessage?: ModalMessageHandler<U>;
 	/**
 	 * Optionally pass state to share with the modal. Due to how Shopify App Bridge
 	 * handles modals, this state will be requested asynchronously by the modal
@@ -142,6 +150,7 @@ export function useModal<T extends SharedState = SharedState>(args: UseModalPort
 				}
 			},
 			titleBarState: (payload) => {
+				console.log('received titleBarState', payload);
 				if (payload.variant !== 'max' && variant === 'max') {
 					console.warn(`Received incorrect payload for max modal title bar. Shopify limits customization in max modal, 
       so your state updates may not be reflected. If you see this warning, check your implementation of useParent 
@@ -193,6 +202,7 @@ export function useModal<T extends SharedState = SharedState>(args: UseModalPort
 		) {
 			const { data, ports } = event;
 			if (!data || data.type !== '__MODAL_CHANNEL_INIT__') return;
+			console.log('RECEIVED INIT EVENT', event);
 			if (data.modalId !== modalId) return;
 			const [port] = ports;
 			if (!port) return;
@@ -219,6 +229,10 @@ export function useModal<T extends SharedState = SharedState>(args: UseModalPort
 				}
 				// @ts-expect-error come back to this, its fine but would prefer nicer type inference todo
 				cb(msg.data);
+			};
+
+			portRef.current.onmessageerror = (ev) => {
+				console.log('onmessageerror', ev);
 			};
 
 			// send initial state to port 1 (child)

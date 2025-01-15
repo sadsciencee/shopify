@@ -9,7 +9,7 @@ export type RouteSuccessResponse<T> = T & {
 
 export type RouteResponse<T> = RouteErrorResponse | RouteSuccessResponse<T>;
 
-export type SharedState<T extends Record<string, never> = Record<string, never>> = T;
+export type SharedState<T extends Record<string, unknown> = Record<string, unknown>> = T;
 
 export type TitleBarState =
 	| ({ variant: 'max' } & MaxModalTitleBarProps)
@@ -68,7 +68,7 @@ export type MaxModalTitleBarProps = {
 	secondaryButton?: MaxModalButton;
 };
 
-type MaxModalButton = {
+export type MaxModalButton = {
 	label: string;
 	disabled: boolean;
 };
@@ -83,4 +83,4 @@ export type ModalControls = {
 	reply: (data: PayloadRegistry['messageFromParent']) => void;
 }
 
-export type UserMessageHandler = <T extends Record<string, never>>(data: T, controls: ModalControls) => void;
+export type ModalMessageHandler<T extends SharedState = SharedState> = (data: T, controls: ModalControls) => void;
