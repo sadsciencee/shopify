@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "532da31c163c08e9d3b2c7162b560b22"
-application_url = "https://delay-brass-corporate-garbage.trycloudflare.com"
+application_url = "https://province-tutorial-ic-chambers.trycloudflare.com"
 embedded = true
 name = "file-picker-remix"
 handle = "file-picker-remix"
@@ -23,9 +23,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://delay-brass-corporate-garbage.trycloudflare.com/auth/callback",
-  "https://delay-brass-corporate-garbage.trycloudflare.com/auth/shopify/callback",
-  "https://delay-brass-corporate-garbage.trycloudflare.com/api/auth/callback"
+  "https://province-tutorial-ic-chambers.trycloudflare.com/auth/callback",
+  "https://province-tutorial-ic-chambers.trycloudflare.com/auth/shopify/callback",
+  "https://province-tutorial-ic-chambers.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
