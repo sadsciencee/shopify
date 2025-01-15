@@ -1,6 +1,6 @@
 {
-  "name": "@sadsciencee/shopify-remix",
-  "version": "0.0.1",
+  "name": "@sadsciencee/shopify",
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "exports": {
     "./node": {
@@ -55,6 +55,9 @@
     "react-dom": "^18.2.0"
   },
   "peerDependenciesMeta": {
+    "@remix-run/react": {
+      "optional": true
+    },
     "@remix-run/node": {
       "optional": true
     },

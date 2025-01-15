@@ -13,7 +13,7 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "paths": {
-      "@admin": ["src/admin.types.ts"]
+      "@admin": ["./src/admin.types.ts"]
     }
   },
   "include": ["src"],

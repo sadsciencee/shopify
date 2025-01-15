@@ -1,4 +1,4 @@
-import { type MaxModalTitleBarProps, type SendMessageCallback } from '../../shared/modal';
+import { type MaxModalTitleBarProps, type SendMessageCallback } from '../../../shared/modal';
 import { useCallback } from 'react';
 
 export const MaxModalTitleBar = ({
