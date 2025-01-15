@@ -110,17 +110,20 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
 export default function YourModal() {
     const loaderData = useLoaderData<typeof loader>();
-    /**
-     * Pass in callbacks `onPrimaryAction` and `onSecondaryAction` so you can respond to
-     * clicks from the buttons in the modal wrapper.
-     */
     const onPrimaryAction = useCallback(() => {
-        console.log('Primary Button Clicked');
-    }, []);
+        generateProduct();
+    }, [generateProduct]);
     const onSecondaryAction = useCallback(() => {
         console.log('Secondary Button Clicked');
+    }, []);
+    
+    /**
+    * Pass in callback `onReply` to handle replies from the modal.
+    */
+    const onReply = useCallback((data: unknown) => {
+        console.log('Reply from modal:', data)
     }, [])
-    /** 
+    /**
     * `useParent` will return the following object which you can use to interact with the parent
     */
     const {
@@ -138,21 +141,27 @@ export default function YourModal() {
          */
         titleBarState,
         /**
-         * Modify the title bar state - use this to change 'disabled' status or hide/remove buttons
-         * This will completely override the title bar state, so make sure to pass in the existing state along with your changes.
-         * @example setTitleBarState({ ...titleBarState, primaryButton: { disabled: false, label: titleBarState.primaryButton.label } });
+         * Modify the title bar in the parent frame.
+         * @example updateTitleBar({
+         *    title: 'Create Product',
+         * 		primaryButton: { label: 'Save', disabled: false },
+         * 		secondaryButton: { label: 'Reset', disabled: false }
+         * 	});
+         *
+         * You only have to pass the values you want to change. To disable the primary button, pass `disabled: true`.
+         * @example updateTitleBar({ primaryButton: { disabled: true } });
+         *
+         * To hide an existing button, pass `null`.
+         * @example updateTitleBar({ primaryButton: null });
          */
-        setTitleBarState,
-        /**
-         * Whether the parent frame has finished loading the initial state. You may or may not
-         * care about this.
-         */
+        updateTitleBar,
         loaded,
     } = useParent({
         id: loaderData.id,
         route: 'hello',
         onPrimaryAction,
         onSecondaryAction,
+        onReply,
     });
     return (
         <Card>

@@ -150,7 +150,6 @@ export function useModal<T extends SharedState = SharedState>(args: UseModalPort
 				}
 			},
 			titleBarState: (payload) => {
-				console.log('received titleBarState', payload);
 				if (payload.variant !== 'max' && variant === 'max') {
 					console.warn(`Received incorrect payload for max modal title bar. Shopify limits customization in max modal, 
       so your state updates may not be reflected. If you see this warning, check your implementation of useParent 
@@ -197,17 +196,16 @@ export function useModal<T extends SharedState = SharedState>(args: UseModalPort
 	useEffect(() => {
 		function handlePortInit(
 			event: MessageEvent<
-				{ type: '__MODAL_CHANNEL_INIT__'; modalId: string } | Record<string, never>
-			>,
-		) {
+		{ type: '__MODAL_CHANNEL_INIT__'; modalId: string } | Record<string, never>
+		>,
+	) {
 			const { data, ports } = event;
 			if (!data || data.type !== '__MODAL_CHANNEL_INIT__') return;
-			console.log('RECEIVED INIT EVENT', event);
 			if (data.modalId !== modalId) return;
+
 			const [port] = ports;
 			if (!port) return;
 
-			// handles re-init case
 			if (portRef.current) {
 				portRef.current.onmessage = null;
 				portRef.current.close();
@@ -221,21 +219,12 @@ export function useModal<T extends SharedState = SharedState>(args: UseModalPort
 				const cb = allHandlers[msg.type];
 				if (!cb) {
 					console.warn('Unhandled message type:', msg.type, ' in modal:', modalId);
-					console.log(
-						'if you see this warning it means you are passing a message from your ' +
-							"modal but you don't have a handler for it in your parent component",
-					);
 					return;
 				}
-				// @ts-expect-error come back to this, its fine but would prefer nicer type inference todo
+				// @ts-expect-error todo
 				cb(msg.data);
 			};
 
-			portRef.current.onmessageerror = (ev) => {
-				console.log('onmessageerror', ev);
-			};
-
-			// send initial state to port 1 (child)
 			sendMessage({
 				type: 'sendParentState',
 				data: {
@@ -245,19 +234,12 @@ export function useModal<T extends SharedState = SharedState>(args: UseModalPort
 			});
 		}
 
-		// Listen for the child's __MODAL_CHANNEL_INIT__ event.
 		window.addEventListener('message', handlePortInit);
 
-		// teardown
 		return () => {
 			window.removeEventListener('message', handlePortInit);
-			if (portRef.current) {
-				portRef.current.onmessage = null;
-				portRef.current.close();
-				portRef.current = null;
-			}
 		};
-	}, [modalId, allHandlers]);
+	}, [modalId, allHandlers, sendMessage, sharedState, titleBarState]);
 
 	const onShowCB = useCallback(() => {
 		if (onShow) {

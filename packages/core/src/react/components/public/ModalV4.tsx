@@ -10,6 +10,7 @@ import { MaxModalTitleBar } from '../private/MaxModalTitleBar';
 export const ModalV4 = forwardRef<UIModalElement, ModalV4Props>(
 	({ opener: Opener, ...hookArgs }, ref) => {
 		const { id, sendMessage, onShow, openModal, variant, titleBar, onHide, modalRoute } =
+			// @ts-expect-error todo
 			useModal(hookArgs);
 		return (
 			<>

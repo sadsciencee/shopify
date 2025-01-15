@@ -4,6 +4,7 @@ import { TitleBar, useAppBridge } from '@shopify/app-bridge-react';
 import { authenticate } from '../shopify.server';
 import { ModalV4, type ModalMessageHandler } from '@sadsciencee/shopify/react';
 import { useCallback } from 'react';
+import { ShouldRevalidateFunction } from '@remix-run/react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	await authenticate.admin(request);
@@ -11,20 +12,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	return null;
 };
 
+
 export default function Index() {
 	const shopify = useAppBridge();
-  const onMessage = useCallback<ModalMessageHandler<{ customMessage: string }>>(
-    (data, controls) => {
-      // data is now typed as { customMessage: string }
-      // controls has ModalControls type
-      console.log(data.customMessage);
-      // you can send a reply back to the modal with controls.reply()
-      controls.reply({ customMessage: 'Hello from the app' });
-      // best to do toasts from the parent as well
-      shopify.toast.show(data.customMessage)
-    },
-    [shopify]
-  );
+	const onMessage = useCallback<ModalMessageHandler<{ customMessage: string }>>(
+		(data, controls) => {
+			// data is now typed as { customMessage: string }
+			// controls has ModalControls type
+			console.log(data.customMessage);
+			// you can send a reply back to the modal with controls.reply()
+			controls.reply({ customMessage: 'Hello from the app' });
+			// best to do toasts from the parent as well
+			shopify.toast.show(data.customMessage);
+		},
+		[shopify],
+	);
 
 	/*
 	 * for non-ts users, just replace `useCallback<ModalMessageHandler<{ customMessage: string }>>`
@@ -64,7 +66,7 @@ export default function Index() {
 									sharedState={{
 										howdy: 'partner',
 									}}
-                  onMessage={onMessage}
+									onMessage={onMessage}
 								/>
 							</BlockStack>
 						</Card>
