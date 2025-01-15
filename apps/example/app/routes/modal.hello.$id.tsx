@@ -1,13 +1,13 @@
 import { BlockStack, Box, Card, Layout, Link, List, Page, Text } from '@shopify/polaris';
 import { TitleBar } from '@shopify/app-bridge-react';
-import { useModal } from '@sadsciencee/shopify-remix/react';
+import { useParent } from '@sadsciencee/shopify-remix/react';
 import { useCallback } from 'react';
 
 export default function AdditionalPage() {
 	const clickCb = useCallback(() => {
 		console.log('dont mind if i click');
 	}, []);
-	useModal({
+	useParent({
 		id: 'hehehoho',
 		route: 'hello',
 		onPrimaryAction: clickCb,

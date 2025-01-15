@@ -9,11 +9,6 @@ export type RouteSuccessResponse<T> = T & {
 
 export type RouteResponse<T> = RouteErrorResponse | RouteSuccessResponse<T>;
 
-/*
-export interface PayloadRegistry {
-}
-*/
-
 export type SharedState<T extends Record<string, never> = Record<string, never>> = T;
 
 export type TitleBarState =
@@ -29,6 +24,8 @@ declare global {
 			sharedState: SharedState;
 			titleBarState: TitleBarState;
 		};
+		messageFromPortal: SharedState;
+		messageFromParent: SharedState;
 		reloadParent: { closeAfterReload: boolean };
 		titleBarAction: { action: 'primary' | 'secondary' };
 		titleBarState: TitleBarState;
@@ -45,9 +42,6 @@ export type ModalMessage = {
 	};
 }[keyof PayloadRegistry];
 
-export type ModalMessageWithId = { payload: ModalMessage; modalId: string };
-
-// export type SendMessageCallback = <K extends PayloadKey>(type: K, data: PayloadData<K>) => void;
 export type SendMessageCallback = (payload: ModalMessage) => void;
 /**
  * Type mapping of event keys to callback functions, strongly typed from global `PayloadRegistry`.
@@ -83,3 +77,10 @@ type ModalButton = {
 	label: string;
 	disabled: boolean;
 };
+
+export type ModalControls = {
+	close: typeof close;
+	reply: (data: PayloadRegistry['messageFromParent']) => void;
+}
+
+export type UserMessageHandler = <T extends Record<string, never>>(data: T, controls: ModalControls) => void;
