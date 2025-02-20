@@ -40,6 +40,10 @@ react-dom@^18.2.0
 
 ## API Reference
 
+### Resource Picker
+
+A React hook/component for the app bridge resource picker is just about ready. TODO: more testing and docs
+
 ### Modal
 
 App Bridge V4 handles modals through native iframes, as opposed to the previous version which allowed 
