@@ -1,10 +1,22 @@
 import { useCallback } from "react";
 import { DropZone, BlockStack } from "@shopify/polaris";
 import { useFetcher } from "@remix-run/react";
-import type { FileUploadRouteResponse } from "~/routes/app.api.file-upload";
 import { type RouteResponse } from '../../../shared/result';
 import { useFiles } from "../../providers/FileContext";
 import { useFetcherResult } from '../../hooks/public/useFetcherResult';
+
+export type FileUploadRouteResponse = {
+    uploadedFiles: {
+        id: string;
+        filename: string;
+        status: "FAILED" | "PROCESSING" | "READY" | "UPLOADED";
+    }[];
+    blockRevalidation: boolean;
+    errors: {
+        filename: string | undefined;
+        error: string | undefined;
+    }[];
+};
 
 export type UploadFile = {
     id: string;

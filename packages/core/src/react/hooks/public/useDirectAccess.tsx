@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { type ResultAsync, resultFromError, resultSuccess } from '../../../shared/result';
 import { type JsonValue } from '../../../shared/jsonValue';
-import type { DisplayableError } from '@admin';
+import type { DisplayableError } from '@admin'
 
 export function useDirectAccess<T>() {
 	const [queryHistory, setQueryHistory] = useState<string[]>([]);
@@ -86,12 +86,15 @@ type DirectAccessArgs = {
 export async function directAccess<T>({
 	query,
 	variables,
-	url = 'shopify:admin/api/graphql.json',
+	url = 'shopify:admin/api/2025-01/graphql.json',
 }: DirectAccessArgs): ResultAsync<T> {
 	try {
 		if (!variables) {
 			const res = await fetch(url, {
 				method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
 				body: JSON.stringify({
 					query,
 				}),
